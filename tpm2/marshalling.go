@@ -187,7 +187,7 @@ func MarshalCommand[C Command[R, *R], R any](cmd C) ([]byte, error) {
 func UnmarshalCommand[C Command[R, *R], R any](data []byte) (C, error) {
 	var cmd C
 
-	if len(data) == 0 {
+	if data == nil {
 		return cmd, fmt.Errorf("data cannot be nil")
 	}
 
@@ -199,7 +199,7 @@ func UnmarshalCommand[C Command[R, *R], R any](data []byte) (C, error) {
 	}
 
 	if cc != cmd.Command() {
-		return cmd, fmt.Errorf("command code mismatch: expected %v, got %v", cc, cmd.Command())
+		return cmd, fmt.Errorf("command code mismatch: expected %v, got %v", cmd.Command(), cc)
 	}
 
 	expectedNames, err := cmdNames(cmd)
@@ -209,7 +209,7 @@ func UnmarshalCommand[C Command[R, *R], R any](data []byte) (C, error) {
 	numNames := len(expectedNames)
 
 	names := make([]TPM2BName, numNames)
-	for i := range numNames - 1 {
+	for i := range numNames {
 		remaining := buf.Bytes()
 		if len(remaining) == 0 {
 			return cmd, fmt.Errorf("unexpected end of data while parsing name %d", i)
@@ -240,7 +240,9 @@ func UnmarshalCommand[C Command[R, *R], R any](data []byte) (C, error) {
 	params := buf.Bytes()
 
 	paramsBuf := bytes.NewBuffer(params)
-	unmarshalCmdParameters(paramsBuf, &cmd, nil)
+	if err := unmarshalCmdParameters(paramsBuf, &cmd, nil); err != nil {
+		return cmd, err
+	}
 	return cmd, nil
 }
 
