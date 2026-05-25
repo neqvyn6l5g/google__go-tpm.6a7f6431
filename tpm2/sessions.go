@@ -882,13 +882,13 @@ func (s *policySession) Validate(rc TPMRC, cc TPMCC, parms []byte, _ []TPM2BName
 	// Track the new nonceTPM for the session.
 	s.nonceTPM = auth.Nonce
 	// Track the session being automatically flushed.
-	if auth.Attributes.ContinueSession {
+	if !auth.Attributes.ContinueSession {
 		s.handle = TPMRHNull
 	}
 
 	if s.password {
 		// If we used a password, expect no nonce and no response HMAC.
-		if len(auth.Nonce.Buffer) > 1 {
+		if len(auth.Nonce.Buffer) != 0 {
 			return fmt.Errorf("expected empty nonce in response auth to PW policy, got %x", auth.Nonce)
 		}
 		if len(auth.Authorization.Buffer) != 0 {
@@ -896,15 +896,16 @@ func (s *policySession) Validate(rc TPMRC, cc TPMCC, parms []byte, _ []TPM2BName
 		}
 	} else {
 		// Part 1, 19.6
+		// HMAC key is (sessionKey || auth).
 		var hmacKey []byte
-		hmacKey = append(hmacKey, hmacKeyFromAuthValue(s.auth)...)
 		hmacKey = append(hmacKey, s.sessionKey...)
+		hmacKey = append(hmacKey, hmacKeyFromAuthValue(s.auth)...)
 		// Compute the authorization HMAC.
 		rph, err := rpHash(s.hash, rc, cc, parms)
 		if err != nil {
 			return err
 		}
-		mac, err := computeHMAC(s.hash, hmacKey, rph, s.nonceCaller.Buffer, s.nonceTPM.Buffer, nil, auth.Attributes)
+		mac, err := computeHMAC(s.hash, hmacKey, rph, s.nonceTPM.Buffer, s.nonceCaller.Buffer, nil, auth.Attributes)
 		if err != nil {
 			return err
 		}
