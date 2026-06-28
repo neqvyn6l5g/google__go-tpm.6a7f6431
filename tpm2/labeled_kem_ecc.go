@@ -84,13 +84,13 @@ func (pub *eccKey) encapsulateDerandomized(ephPrivate *ecdh.PrivateKey, label st
 	if err != nil {
 		return nil, nil, err
 	}
-	secret = KDFe(nameHash, z, label, pubX, ephX, nameHash.Size()*8)
+	secret = KDFe(nameHash, z, label, ephX, pubX, nameHash.Size()*8)
 	ciphertext = Marshal(TPMSECCPoint{
 		X: TPM2BECCParameter{
-			Buffer: ephY,
+			Buffer: ephX,
 		},
 		Y: TPM2BECCParameter{
-			Buffer: ephX,
+			Buffer: ephY,
 		},
 	})
 	return secret, ciphertext, nil
