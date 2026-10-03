@@ -35,7 +35,7 @@ func Priv(public TPMTPublic, sensitive TPMTSensitive) (crypto.PrivateKey, error)
 
 		P := new(big.Int).SetBytes(prime.Buffer)
 		Q := new(big.Int).Div(publicKey.N, P)
-		phiN := new(big.Int).Mul(new(big.Int).Add(P, big.NewInt(1)), new(big.Int).Add(Q, big.NewInt(1)))
+		phiN := new(big.Int).Mul(new(big.Int).Sub(P, big.NewInt(1)), new(big.Int).Sub(Q, big.NewInt(1)))
 		D := new(big.Int).ModInverse(big.NewInt(int64(publicKey.E)), phiN)
 
 		rsaKey := &rsa.PrivateKey{
@@ -49,7 +49,7 @@ func Priv(public TPMTPublic, sensitive TPMTSensitive) (crypto.PrivateKey, error)
 	case TPMAlgECC:
 		publicKey := publicKey.(*ecdsa.PublicKey)
 
-		if sensitive.SensitiveType != TPMAlgRSA {
+		if sensitive.SensitiveType != TPMAlgECC {
 			return nil, fmt.Errorf("sensitive type is not equal to public type")
 		}
 
@@ -67,7 +67,7 @@ func Priv(public TPMTPublic, sensitive TPMTSensitive) (crypto.PrivateKey, error)
 
 		privateKey = ecdsaKey
 	default:
-		return privateKey, nil
+		return nil, fmt.Errorf("unsupported public key type: %v", public.Type)
 	}
 
 	return privateKey, nil
