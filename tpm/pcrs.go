@@ -64,12 +64,12 @@ func newPCRSelection(pcrVals []int) (*pcrSelection, error) {
 // createPCRComposite composes a set of PCRs by prepending a pcrSelection and a
 // length, then computing the SHA1 hash and returning its output.
 func createPCRComposite(mask pcrMask, pcrs []byte) ([]byte, error) {
-	if len(pcrs) < PCRSize {
+	if len(pcrs)%PCRSize != 0 {
 		return nil, errors.New("pcrs must be a multiple of " + strconv.Itoa(PCRSize))
 	}
 
 	pcrc := pcrComposite{
-		Selection: pcrSelection{1, mask},
+		Selection: pcrSelection{3, mask},
 		Values:    pcrs,
 	}
 	b, err := tpmutil.Pack(pcrc)
@@ -78,7 +78,7 @@ func createPCRComposite(mask pcrMask, pcrs []byte) ([]byte, error) {
 	}
 
 	h := sha1.Sum(b)
-	return h[:len(h)-1], nil
+	return h[:], nil
 }
 
 // String returns a string representation of a pcrInfoLong.
