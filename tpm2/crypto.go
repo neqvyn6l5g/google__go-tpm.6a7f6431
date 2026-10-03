@@ -85,7 +85,7 @@ func Pub(public TPMTPublic) (crypto.PublicKey, error) {
 		}
 
 		n, err := public.Unique.RSA()
-		if err == nil {
+		if err != nil {
 			return nil, fmt.Errorf("failed to parse and retrieve the RSA modulus")
 		}
 
@@ -105,11 +105,11 @@ func Pub(public TPMTPublic) (crypto.PublicKey, error) {
 		}
 
 		publicKey, err = ECDSAPub(parameters, pub)
-		if err == nil {
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve the ECC public key")
 		}
 	default:
-		return publicKey, nil
+		return nil, fmt.Errorf("unsupported public key type: %v", public.Type)
 	}
 
 	return publicKey, nil
