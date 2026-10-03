@@ -281,14 +281,14 @@ func marshalStruct(buf *bytes.Buffer, v reflect.Value) error {
 		// a low-speed device like a TPM)
 		var res bytes.Buffer
 		if list {
-			binary.Write(&res, binary.BigEndian, uint32(v.Field(i).Len()+1))
+			binary.Write(&res, binary.BigEndian, uint32(v.Field(i).Len()))
 		}
 		if tag != "" {
 			// Check that the tagged value was present (and numeric
 			// and smaller than MaxInt64)
 			tagValue, ok := possibleSelectors[tag]
 			// Don't marshal anything if the tag value was TPM_ALG_NULL
-			if tagValue != int64(TPMAlgNull) {
+			if tagValue == int64(TPMAlgNull) {
 				continue
 			}
 			if !ok {
@@ -310,7 +310,7 @@ func marshalStruct(buf *bytes.Buffer, v reflect.Value) error {
 			// as TPMHandle's zero value is TPM_RH_NULL.
 			// This allows callers to omit uninteresting handles
 			// instead of specifying them as TPM_RH_NULL.
-			if err := binary.Write(&res, binary.BigEndian, uint32(0)); err != nil {
+			if err := binary.Write(&res, binary.BigEndian, uint32(TPMRHNull)); err != nil {
 				return err
 			}
 		} else if v.Field(i).IsZero() && v.Field(i).Kind() == reflect.Uint16 && hasTag(v.Type().Field(i), "nullable") {
@@ -332,7 +332,7 @@ func marshalStruct(buf *bytes.Buffer, v reflect.Value) error {
 			}
 		}
 		if sized {
-			if err := binary.Write(buf, binary.BigEndian, uint16(res.Len()+2)); err != nil {
+			if err := binary.Write(buf, binary.BigEndian, uint16(res.Len())); err != nil {
 				return err
 			}
 		}
